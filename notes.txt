@@ -1,0 +1,22 @@
+cd "/mnt/c/Users/ghost/OneDrive - student.uni-tuebingen.de/Machine Learning/S5"
+
+conda create --name S5 python=3.11
+conda create --name S5_pendulum python=3.9
+
+conda env remove --name S5_pendulum
+
+conda clean --all
+
+
+nvidia driver 537.58-notebook-win10-win11-64bit-international-dch-whql
+conda install jaxlib=*=*cuda* jax cuda-nvcc -c conda-forge -c nvidia
+conda install conda-forge::wandb
+conda install conda-forge::tqdm
+pip install flax
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+conda install conda-forge::einops
+
+
+conda activate gymnasium_py3.11
+wandb login
+wandb sync -p S5_pendulum "C:/Users/ghost/OneDrive - student.uni-tuebingen.de/Machine Learning/S5/wandb/offline-run-20240228_084332-ut4z92ce"

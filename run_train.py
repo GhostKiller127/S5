@@ -38,7 +38,7 @@ if __name__ == "__main__":
 	parser.add_argument("--discretization", type=str, default="zoh", choices=["zoh", "bilinear"])
 	parser.add_argument("--mode", type=str, default="pool", choices=["pool", "last"],
 						help="options: (for classification tasks) \\" \
-							 " pool: mean pooling \\" \
+							 "pool: mean pooling \\" \
 							 "last: take last element")
 	parser.add_argument("--activation_fn", default="half_glu1", type=str,
 						choices=["full_glu", "half_glu1", "half_glu2", "gelu"])
