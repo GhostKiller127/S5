@@ -11,6 +11,8 @@ if __name__ == "__main__":
 						help="log with wandb?")
 	parser.add_argument("--wandb_project", type=str, default=None,
 						help="wandb project name")
+	parser.add_argument("--wandb_name", type=str, default=None,
+						help="wandb run name")
 	parser.add_argument("--wandb_entity", type=str, default=None,
 						help="wandb entity name, e.g. username")
 	parser.add_argument("--dir_name", type=str, default='./cache_dir',

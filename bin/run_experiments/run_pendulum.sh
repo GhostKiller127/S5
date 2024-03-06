@@ -22,8 +22,7 @@ cd ..
 
 
 # run
-python run_train.py --method 'S5' --C_init=trunc_standard_normal --USE_WANDB=False --activation_fn=half_glu2 --batchnorm=False --bidirectional=False --blocks=8 --bn_momentum=0.95 --bsz=32 --clip_eigs=False --conj_sym=True --cosine_anneal=True --d_model=30 --dataset=cru-image-pendulum-regression --dir_name=./cache_dir --discretization=zoh --dt_global=False --dt_max=0.1 --dt_min=0.01 --early_stop_patience=100 --epochs=100 --jax_seed=1 --lr_factor=4 --lr_min=0 --lr_patience=1000 --mode=pool --n_layers=4 --opt_config=standard --p_dropout=0.1 --prenorm=False --reduce_factor=1 --ssm_lr=0.003 --ssm_size=16 --wandb_entity=None --wandb_project=pendulum-1 --warmup_end=1 --weight_decay=0
+python run_train.py --method 'S5' --C_init=trunc_standard_normal --USE_WANDB=True --activation_fn=half_glu2 --batchnorm=False --bidirectional=False --blocks=8 --bn_momentum=0.95 --bsz=32 --clip_eigs=False --conj_sym=True --cosine_anneal=True --d_model=30 --dataset=cru-image-pendulum-regression --dir_name=./cache_dir --discretization=zoh --dt_global=False --dt_max=0.1 --dt_min=0.01 --early_stop_patience=100 --epochs=100 --jax_seed=1 --lr_factor=4 --lr_min=0 --lr_patience=1000 --n_layers=4 --opt_config=standard --p_dropout=0 --prenorm=False --reduce_factor=1 --ssm_lr=0.003 --ssm_size=16 --wandb_entity=ghostkiller2070 --wandb_project=S5_pendulum --wandb_name=Test --warmup_end=1 --weight_decay=0
 
 
-# mean pool vs last
-# no cosine alternative
+# wandb API: 83719656207b74e9f015bc2516e6c85bb1d61d37
