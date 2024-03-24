@@ -29,6 +29,7 @@ class SequenceLayer(nn.Module):
     bn_momentum: float = 0.90
     step_rescale: float = 1.0
 
+
     def setup(self):
         """Initializes the ssm, batch/layer norm and dropout
         """
@@ -41,18 +42,14 @@ class SequenceLayer(nn.Module):
             self.out2 = nn.Dense(self.d_model)
 
         if self.batchnorm:
-            self.norm = nn.BatchNorm(use_running_average=not self.training,
-                                     momentum=self.bn_momentum, axis_name='batch')
+            self.norm = nn.BatchNorm(momentum=self.bn_momentum, axis_name='batch')
         else:
             self.norm = nn.LayerNorm()
 
-        self.drop = nn.Dropout(
-            self.dropout,
-            broadcast_dims=[0],
-            deterministic=not self.training,
-        )
+        self.drop = nn.Dropout(self.dropout, broadcast_dims=[0])
 
-    def __call__(self, x, integration_timesteps):
+
+    def __call__(self, x, training=False, integration_timesteps=None):
         """
         Compute the LxH output of S5 layer given an LxH input.
         Args:
@@ -62,29 +59,35 @@ class SequenceLayer(nn.Module):
         """
         skip = x
         if self.prenorm:
-            x = self.norm(x)
+            if self.batchnorm:
+                x = self.norm(x, use_running_average=not training)
+            else:
+                x = self.norm(x)
         x = self.seq(x, integration_timesteps)
 
         if self.activation in ["full_glu"]:
-            x = self.drop(nn.gelu(x))
+            x = self.drop(nn.gelu(x), deterministic=not training)
             x = self.out1(x) * jax.nn.sigmoid(self.out2(x))
-            x = self.drop(x)
+            x = self.drop(x, deterministic=not training)
         elif self.activation in ["half_glu1"]:
-            x = self.drop(nn.gelu(x))
+            x = self.drop(nn.gelu(x), deterministic=not training)
             x = x * jax.nn.sigmoid(self.out2(x))
-            x = self.drop(x)
+            x = self.drop(x, deterministic=not training)
         elif self.activation in ["half_glu2"]:
             # Only apply GELU to the gate input
-            x1 = self.drop(nn.gelu(x))
+            x1 = self.drop(nn.gelu(x), deterministic=not training)
             x = x * jax.nn.sigmoid(self.out2(x1))
-            x = self.drop(x)
+            x = self.drop(x, deterministic=not training)
         elif self.activation in ["gelu"]:
-            x = self.drop(nn.gelu(x))
+            x = self.drop(nn.gelu(x), deterministic=not training)
         else:
             raise NotImplementedError(
                    "Activation: {} not implemented".format(self.activation))
 
         x = skip + x
         if not self.prenorm:
-            x = self.norm(x)
+            if self.batchnorm:
+                x = self.norm(x, use_running_average=not training)
+            else:
+                x = self.norm(x)
         return x

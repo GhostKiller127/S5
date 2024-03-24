@@ -60,7 +60,7 @@ class StackedEncoderModel(nn.Module):
             for _ in range(self.n_layers)
         ]
 
-    def __call__(self, x, integration_timesteps):
+    def __call__(self, x, training, integration_timesteps):
         """
         Compute the LxH output of the stacked encoder given an Lxd_input
         input sequence.
@@ -85,7 +85,7 @@ class StackedEncoderModel(nn.Module):
                 print('\n\nWarning:  discarding/appending integration timesteps. \n\n')
 
         for layer in self.layers:
-            x = layer(x, integration_timesteps)
+            x = layer(x, training, integration_timesteps)
         return x
 
 
@@ -253,20 +253,21 @@ class GaussianRegressionModel(nn.Module):
         self.decoder_mu = SimpleMLP([self.decoder_dim, self.d_output])
         self.decoder_lvar = SimpleMLP([self.decoder_dim, self.d_output])
 
-    def __call__(self, x, integration_timesteps):
+    def __call__(self, x, training, integration_timesteps=None):
         """
         Args:
              x (float32): input sequence (L, d_input)
         Returns:
             output (float32): (d_output, d_output)  Mean and variance.
         """
-        x = self.encoder(x, integration_timesteps)
+        x = self.encoder(x, training, integration_timesteps)
+        # x = x[-1]
         mu = self.decoder_mu(x)
-        lvar = self.decoder_lvar(x)
+        var = self.decoder_lvar(x)
 
         # CRU uses a funny activtion function.
-        lvar_rectified = np.exp(lvar)
-        var = np.where(lvar < 0.0, lvar_rectified, lvar + 1.0)
+        # lvar_rectified = np.exp(lvar)
+        # var = np.where(lvar < 0.0, lvar_rectified, lvar + 1.0)
         return mu, var
 
 

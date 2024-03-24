@@ -263,42 +263,42 @@ class S5SSM(nn.Module):
             #  Smith et al.) we used the vmapped version.
 
             # # <> Code for using pre-computed parameters.
-            # # Fixed interval observations (or the interval is being dealt with elsewhere).
-            # assert (self.Lambda_bar is not None) and (self.B_bar is not None), "Must be pre-computed."
-            # Lambda_bar_elements = self.Lambda_bar * np.ones((input_sequence.shape[0],
-            #                                                  self.Lambda_bar.shape[0]))
-            # Bu_bar_elements = jax.vmap(lambda u: self.B_bar @ u)(input_sequence)
-            #
-            # # For fixed-interval observations, the reverse terms are the same as the forward terms.
-            # if self.bidirectional:
-            #     Lambda_bar_elements_bwd = Lambda_bar_elements
-            #     Bu_bar_elements_bwd = Bu_bar_elements
+            # Fixed interval observations (or the interval is being dealt with elsewhere).
+            assert (self.Lambda_bar is not None) and (self.B_bar is not None), "Must be pre-computed."
+            Lambda_bar_elements = self.Lambda_bar * np.ones((input_sequence.shape[0],
+                                                             self.Lambda_bar.shape[0]))
+            Bu_bar_elements = jax.vmap(lambda u: self.B_bar @ u)(input_sequence)
+            
+            # For fixed-interval observations, the reverse terms are the same as the forward terms.
+            if self.bidirectional:
+                Lambda_bar_elements_bwd = Lambda_bar_elements
+                Bu_bar_elements_bwd = Bu_bar_elements
             # # <\> Code for using pre-computed parameters.
 
             # # <> Copied code from variable timestep for consistency.
-            integration_timesteps = np.ones((len(input_sequence) - 1))
+            # integration_timesteps = np.ones((len(input_sequence) - 1))
 
-            # # NOTE - can't check for this here.
-            # assert (self.Lambda_bar is None) and (self.B_bar is None), "Cannot pre-compute these.  How are these not `None`..."
-            # assert integration_timesteps is not None, "Must supply integration_timesteps for variable timesteps."
+            # # # NOTE - can't check for this here.
+            # # assert (self.Lambda_bar is None) and (self.B_bar is None), "Cannot pre-compute these.  How are these not `None`..."
+            # # assert integration_timesteps is not None, "Must supply integration_timesteps for variable timesteps."
 
-            @jax.vmap
-            def _do_vmapped_discretize(_timestep):
-                print('\nWarning: Discretizing on-the-fly...\n')
-                B_tilde = self.B[..., 0] + 1j * self.B[..., 1]
-                step = self.step_rescale * np.exp(self.log_step[:, 0])
-                Lambda_bar, B_bar = self.discretize_fn(self.Lambda, B_tilde, step * _timestep)
-                return Lambda_bar, B_bar
+            # @jax.vmap
+            # def _do_vmapped_discretize(_timestep):
+            #     # print('\nWarning: Discretizing on-the-fly...\n')
+            #     B_tilde = self.B[..., 0] + 1j * self.B[..., 1]
+            #     step = self.step_rescale * np.exp(self.log_step[:, 0])
+            #     Lambda_bar, B_bar = self.discretize_fn(self.Lambda, B_tilde, step * _timestep)
+            #     return Lambda_bar, B_bar
 
-            # Discretize forward pass.
-            fwd_timesteps = np.expand_dims(np.concatenate((np.asarray((1,)), integration_timesteps)), -1)
-            Lambda_bar_elements, B_bar_elements = _do_vmapped_discretize(fwd_timesteps)
-            Bu_bar_elements = jax.vmap(lambda u, b: b @ u)(input_sequence, B_bar_elements)
+            # # Discretize forward pass.
+            # fwd_timesteps = np.expand_dims(np.concatenate((np.asarray((1,)), integration_timesteps)), -1)
+            # Lambda_bar_elements, B_bar_elements = _do_vmapped_discretize(fwd_timesteps)
+            # Bu_bar_elements = jax.vmap(lambda u, b: b @ u)(input_sequence, B_bar_elements)
 
-            if self.bidirectional:
-                bwd_timesteps = np.expand_dims(np.concatenate((integration_timesteps, np.asarray((1,)))), -1)
-                Lambda_bar_elements_bwd, B_bar_elements_bwd = _do_vmapped_discretize(bwd_timesteps)
-                Bu_bar_elements_bwd = jax.vmap(lambda u, b: b @ u)(input_sequence, B_bar_elements_bwd)
+            # if self.bidirectional:
+            #     bwd_timesteps = np.expand_dims(np.concatenate((integration_timesteps, np.asarray((1,)))), -1)
+            #     Lambda_bar_elements_bwd, B_bar_elements_bwd = _do_vmapped_discretize(bwd_timesteps)
+            #     Bu_bar_elements_bwd = jax.vmap(lambda u, b: b @ u)(input_sequence, B_bar_elements_bwd)
             # <\> Copied code from variable timestep for consistency.
 
         else:
@@ -308,7 +308,7 @@ class S5SSM(nn.Module):
 
             @jax.vmap
             def _do_vmapped_discretize(_timestep):
-                print('\nWarning: Discretizing on-the-fly...\n')
+                # print('\nWarning: Discretizing on-the-fly...\n')
                 B_tilde = self.B[..., 0] + 1j * self.B[..., 1]
                 step = self.step_rescale * np.exp(self.log_step[:, 0])
                 Lambda_bar, B_bar = self.discretize_fn(self.Lambda, B_tilde, step * _timestep)
