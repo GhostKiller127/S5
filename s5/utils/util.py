@@ -12,7 +12,8 @@ class SimpleMLP(nn.Module):
 		for i, feat in enumerate(self.features):
 			x = nn.Dense(feat, name=f'layers_{i}')(x)
 			if i != len(self.features) - 1:
-				x = nn.tanh(x)
+				x = nn.gelu(x)
+				# x = nn.tanh(x)
 			# providing a name is optional though!
 			# the default autonames would be "Dense_0", "Dense_1", ...
 		return x

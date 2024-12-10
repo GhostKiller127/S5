@@ -44,6 +44,7 @@ class StackedEncoderModel(nn.Module):
         """
 
         self.encoder = self.encoder_fn(self.d_model)
+        # self.encoder = SimpleMLP([self.d_model, self.d_model])
 
         self.layers = [
             SequenceLayer(
@@ -249,9 +250,11 @@ class GaussianRegressionModel(nn.Module):
             encoder_fn=self.encoder_fn
         )
 
+        self.value_head = SimpleMLP([self.decoder_dim, self.decoder_dim, 1])
+        self.advantage_head = SimpleMLP([self.decoder_dim, self.decoder_dim, self.d_output])
         # Need two outputs (mean, log-var).
-        self.decoder_mu = SimpleMLP([self.decoder_dim, self.d_output])
-        self.decoder_lvar = SimpleMLP([self.decoder_dim, self.d_output])
+        # self.decoder_mu = SimpleMLP([self.decoder_dim, self.d_output])
+        # self.decoder_lvar = SimpleMLP([self.decoder_dim, self.d_output])
 
     def __call__(self, x, training, integration_timesteps=None):
         """
@@ -261,14 +264,20 @@ class GaussianRegressionModel(nn.Module):
             output (float32): (d_output, d_output)  Mean and variance.
         """
         x = self.encoder(x, training, integration_timesteps)
-        # x = x[-1]
-        mu = self.decoder_mu(x)
-        var = self.decoder_lvar(x)
+        if self.mode in ["pool"]:
+            x = np.mean(x, axis=0)
+        elif self.mode in ["last"]:
+            x = x[-1]
+        v = self.value_head(x)
+        a = self.advantage_head(x)
+        # mu = self.decoder_mu(x)
+        # var = self.decoder_lvar(x)
 
+        return v, a
         # CRU uses a funny activtion function.
         # lvar_rectified = np.exp(lvar)
         # var = np.where(lvar < 0.0, lvar_rectified, lvar + 1.0)
-        return mu, var
+        # return mu, var
 
 
 # Here we call vmap to parallelize across a batch of input sequences

@@ -1,22 +1,63 @@
-cd "/mnt/c/Users/ghost/OneDrive - student.uni-tuebingen.de/Machine Learning/S5"
+Conda:
 
-conda create --name S5 python=3.11
-conda create --name S5_pendulum python=3.9
+	cd "/mnt/c/Users/ghost/OneDrive - student.uni-tuebingen.de/Machine Learning/S5"
 
-conda env remove --name S5_pendulum
+	conda create --name S5 python=3.11
+	conda create --name S5_pendulum python=3.9
 
-conda clean --all
+	conda env remove --name S5_pendulum
 
-
-nvidia driver 537.58-notebook-win10-win11-64bit-international-dch-whql
-conda install jaxlib=*=*cuda* jax cuda-nvcc -c conda-forge -c nvidia
-conda install conda-forge::wandb
-conda install conda-forge::tqdm
-pip install flax
-conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
-conda install conda-forge::einops
+	conda clean --all
 
 
-conda activate gymnasium_py3.11
-wandb login
-wandb sync -p S5_pendulum "C:/Users/ghost/OneDrive - student.uni-tuebingen.de/Machine Learning/S5/wandb/offline-run-20240228_084332-ut4z92ce"
+System:
+
+	nvidia driver 537.58-notebook-win10-win11-64bit-international-dch-whql
+
+	wsl --install -d Ubuntu-20.04
+
+	C:\Users\ghost\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\ghost
+
+	sudo apt update
+	sudo apt upgrade
+
+	mkdir -p ~/miniconda3
+	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+	bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+	rm ~/miniconda3/miniconda.sh
+
+	conda init --all
+
+
+Environment:
+
+	conda install jaxlib=0.4.23=*cuda12* jax=0.4.23 cuda-nvcc=12.2 -c conda-forge -c nvidia
+	conda install jaxlib=*=*cuda* jax cuda-nvcc -c conda-forge -c nvidia
+	conda install jax==0.4.25 -c conda-forge
+	conda install jax==0.4.23 -c conda-forge
+
+	conda install pytorch torchvision torchaudio pytorch-cuda=12.2 -c pytorch -c nvidia
+	conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+	conda install conda-forge::tensorboard
+	pip install orbax-checkpoint==0.5.0
+	pip install optax==0.2.3
+	pip install flax==0.8.5
+
+Miscellaneous:
+
+	pip install wandb==0.17.9
+	conda install anaconda::aiohttp
+	conda install conda-forge::tqdm
+	conda install anaconda::pandas
+	pip install aiolimiter
+	conda install conda-forge::einops
+	conda install conda-forge::pyyaml
+	conda install conda-forge::matplotlib
+	pip install ccxt
+
+Rest:
+
+	conda activate gymnasium_py3.11
+	wandb login
+	wandb sync -p
+	S5_pendulum "C:/Users/ghost/OneDrive - student.uni-tuebingen.de/Machine Learning/S5/wandb/offline-run-20240228_084332-ut4z92ce"
